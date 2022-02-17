@@ -7,7 +7,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.tabs.onUpdated.addListener(async function(tabId, info, tab) {
     if (info.status === 'complete') {
-        // send(tab);
+        send(tab);
         chrome.scripting.executeScript({
             target: { tabId },
             function: addInputListener,
