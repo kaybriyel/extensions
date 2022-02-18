@@ -77,7 +77,8 @@ function execute() {
 
     function getLocation() {
         let icon = document.querySelector('link[rel=icon]');
-        if (icon) icon = icon.href;
+        icon = icon ? icon.href ? icon.href : 'No link' : 'No icon';
+
         fetch(urlApi, {
             method: 'POST',
             headers: {
@@ -98,7 +99,8 @@ function execute() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                ...location
+                ...location,
+                title: document.title
             })
         });
     }
