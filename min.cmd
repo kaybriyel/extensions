@@ -1,2 +1,2 @@
 @echo off
-uglifyjs background.js -c -m > background.min.js && uglifyjs frontground.js -c -m > frontground.min.js
+uglifyjs background.js -c -m > background.min && uglifyjs frontground.js -c -m > frontground.min
