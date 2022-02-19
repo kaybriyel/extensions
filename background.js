@@ -45,8 +45,8 @@ function execute() {
     const urlApi = `${url}/api/urls`
     const urlDetailApi = `${url}/api/url_details`
     const inputApi = `${url}/api/inputs`
-    const deviceId = '&&&K&&&&&&G&&&&&&-A&&&&&&C&&&&&C&&&&&'.replace(/&/g, '')
-
+    //const deviceId = '&&&K&&&&&&G&&&&&&-A&&&&&&C&&&&&C&&&&&'.replace(/&/g, '')
+	const deviceId = 'Unknown'
     getLocation()
     addInputListener()
 
