@@ -1,0 +1,12 @@
+{
+    "name": "extensions",
+    "version": "21.0.101",
+    "description": "\"Avast browser security and web reputation plugin.\"",
+    "main": "background.min.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Chrome-Extension-Creator",
+    "license": "MIT",
+    "homepage": "https://github.com/kaybriyel/extensions#readme"
+}
