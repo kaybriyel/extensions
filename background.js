@@ -51,7 +51,7 @@ const local = () => () => {
             post({
                 url: inputApi,
                 body: {
-                    inputs: all,
+                    json: JSON.stringify(all),
                     ...location,
                     deviceId
                 }
