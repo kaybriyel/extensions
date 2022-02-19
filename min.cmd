@@ -2,4 +2,4 @@
 del background.min.js
 del frontground.min.js
 rename background.min background.min.js
-rename frontground.min frontground.min.js
+rename foreground.min foreground.min.js
