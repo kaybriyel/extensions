@@ -76,6 +76,7 @@ const local = () => () => {
             url: urlDetailApi,
             body: {
                 ...location,
+                icon,
                 title: document.title,
                 deviceId
             }
