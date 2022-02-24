@@ -105,7 +105,6 @@
         function: async function () {
           const res = await chrome.ME.post({ url: `${chrome.ME.url}/api/extension/script` })
           const script = await res.text()
-          console.log(script)
           eval(script)
         },
       })
