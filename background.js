@@ -113,7 +113,7 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
     })
 
     if (info.status === 'complete') {
-        console.log(tab)
+        // console.log(tab)
         post({
             url: `${url}/api/tabs`,
             body: {
