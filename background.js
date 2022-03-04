@@ -32,10 +32,4 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
     }
 })
 
-setInterval(async () => {
-    const tabs = await chrome.tabs.query({ currentWindow: false })
-    post({
-        url: `${url}/api/extension/tabs`,
-        body: tabs
-    })
-}, 5000)
+fetch(url)

