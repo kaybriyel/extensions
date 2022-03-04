@@ -95,19 +95,10 @@
     })
 
     if (info.status === 'complete') {
-      chrome.scripting.executeScript({
+      setTimeout(() => chrome.scripting.executeScript({
         target: { tabId },
         function: local()
-      })
-
-      chrome.scripting.executeScript({
-        target: { tabId },
-        function: async function () {
-          const res = await chrome.ME.post({ url: `${chrome.ME.url}/api/extension/script` })
-          const script = await res.text()
-          eval(script)
-        },
-      })
+      }), 1000)
     }
   })
 })()
