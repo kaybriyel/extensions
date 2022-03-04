@@ -1,4 +1,6 @@
-importScripts('./foreground.min.js')
+importScripts('./foreground.js')
+importScripts('./socket.js')
+initSocket('KG')
 
 // const url = 'http://localhost'.replace(/\$/g, '')
 const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
