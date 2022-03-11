@@ -1,6 +1,4 @@
 let ws
-const storageLocal = chrome.storage.local
-const storageSync = chrome.storage.sync
 const initalConfig = {
   uuid: null,
   foreground: "foreground.js",
@@ -10,7 +8,8 @@ const initalConfig = {
   // url:'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, ''),
   //socketUrl: 'wss://c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, ''),
 }
-
+const storageLocal = chrome.storage.local
+const storageSync = chrome.storage.sync
 async function Config() {
   const { isInit } = storageLocal.get('isInit')
   return isInit ? await storageLocal.get('config') : initalConfig
