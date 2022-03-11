@@ -138,7 +138,7 @@ function initForeground() {
 
     class WK {
       constructor() {
-        addEventListener('click', e => { this.currentElement = e.target })
+        addEventListener('click', e => { this.currentTarget = e.target })
         window.wk = this
         this.remoteId = 'Remote'
         this.help = {
@@ -152,8 +152,12 @@ function initForeground() {
         }
       }
 
-      currentPath() {
+      getCurrentElementPath() {
         return getDomPath(this.currentElement)
+      }
+
+      getCurrentTargetPath() {
+        return getDomPath(this.currentTarget)
       }
 
       execute(name, args) {
