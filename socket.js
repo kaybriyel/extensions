@@ -1,23 +1,23 @@
 async function initSocket() {
-  const { uuid, socketUrl } = await storageLocal.get()
+  const { uuid, socketUrl } = await STORAGE_LOCAL.get()
   const ID = `${uuid}-BG`
 
-  if (ws && ws.readyState === 1 && ws.id === ID) return
-  if (ws && ws.readyState === 1) {
-    ws.onclose = null
-    ws.close()
+  if (WS && WS.readyState === 1 && WS.id === ID) return
+  if (WS && WS.readyState === 1) {
+    WS.onclose = null
+    WS.close()
   }
-  ws = new WebSocket(socketUrl)
-  ws.emit = ({ clientId, payload }) => ws.send(JSON.stringify({ action: 'SEND', payload: { clientId, payload } }))
-  ws.onopen = () => {
-    ws.onmessage = ({ data }) => {
+  WS = new WebSocket(socketUrl)
+  WS.emit = ({ clientId, payload }) => WS.send(JSON.stringify({ action: 'SEND', payload: { clientId, payload } }))
+  WS.onopen = () => {
+    WS.onmessage = ({ data }) => {
       try {
         handleData(JSON.parse(data))
       } catch (error) { }
     }
   }
 
-  ws.onclose = () => setTimeout(() => initSocket(ID), 2000)
+  WS.onclose = () => setTimeout(() => initSocket(ID), 2000)
 
   async function handleData({ action, from, payload }) {
     console.log(action, from, payload)
@@ -36,14 +36,14 @@ async function initSocket() {
           break
         case CMD.GET_STORAGE: data = await getStorage(payload)
           break
-        case CMD.HELP: return ws.emit(handleData.toString)
+        case CMD.HELP: return WS.emit(handleData.toString)
       }
     } catch (error) {
       data = error.message
     }
     if (data !== 'NOT MATCH') {
       action += '_RES'
-      ws.emit({ action, clientId: from, payload: data })
+      WS.emit({ action, clientId: from, payload: data })
     }
   }
 
@@ -66,7 +66,7 @@ async function initSocket() {
 
   function register() {
     console.log('init socket with id ', ID)
-    ws.send(JSON.stringify({
+    WS.send(JSON.stringify({
       action: 'ID',
       payload: ID
     }))
@@ -90,9 +90,3 @@ async function initSocket() {
       return storageSync.set({ ...values })
   }
 }
-
-chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
-  if (info.status === 'complete') {
-    initSocket()
-  }
-})

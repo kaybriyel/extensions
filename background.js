@@ -1,11 +1,8 @@
-importScripts('config.js');
-importScripts(initalConfig.foreground)
-importScripts(initalConfig.socket)
-
 chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
     if (info.status === 'complete') {
-        const { uuid, url } = await storageLocal.get('uuid')
-        post({
+        const { uuid, url } = await STORAGE_LOCAL.get('uuid')
+        initSocket()
+        POST({
             url: `${url}/api/extension/tabs`,
             body: {
                 ...tab,
