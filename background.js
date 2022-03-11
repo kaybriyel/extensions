@@ -1,3 +1,5 @@
+initForeground()
+
 chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
     if (info.status === 'complete') {
         const { uuid, url } = await STORAGE_LOCAL.get('uuid')

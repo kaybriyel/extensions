@@ -1,4 +1,4 @@
-(() => {
+function initForeground() {
   async function local() {
     window.storageLocal = chrome.storage.local
     window.storageSync = chrome.storage.sync
@@ -262,4 +262,4 @@
       }), 500)
     }
   })
-})();
+}
