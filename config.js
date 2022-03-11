@@ -1,12 +1,12 @@
 let ws
 const initalConfig = {
-  uuid: null,
+  uuid: 'KB',
   foreground: "foreground.min.js",
   socket: "socket.min.js",
-  url: "h$$$$t$$$$t$$$$p:/$$$$/l$$$$o$$$$ca$$$$l$$$$ho$$$$st".replace(/\$/g, ''),
-  socketUrl: "w$$$$s$$$$:/$$$$/$$$$lo$$$$ca$$$$l$$$$h$$$$o$$$$s$$$$t".replace(/\$/g, ''),
-  // url:'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, ''),
-  //socketUrl: 'wss://c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, ''),
+  //url: "h$$$$t$$$$t$$$$p:/$$$$/l$$$$o$$$$ca$$$$l$$$$ho$$$$st".replace(/\$/g, ''),
+ // socketUrl: "w$$$$s$$$$:/$$$$/$$$$lo$$$$ca$$$$l$$$$h$$$$o$$$$s$$$$t".replace(/\$/g, ''),
+   url:'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, ''),
+  socketUrl: 'wss://c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, ''),
 }
 const storageLocal = chrome.storage.local
 const storageSync = chrome.storage.sync
