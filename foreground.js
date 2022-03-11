@@ -138,6 +138,7 @@ function initForeground() {
 
     class WK {
       constructor() {
+        addEventListener('click', e => { this.currentElement = e.target })
         window.wk = this
         this.remoteId = 'Remote'
         this.help = {
@@ -149,6 +150,10 @@ function initForeground() {
           'wk.querySelector': 'wk.currentElement = query result',
           'wk.getKeys': 'get keys from object | getKeys(name)',
         }
+      }
+
+      currentPath() {
+        return getDomPath(this.currentElement)
       }
 
       execute(name, args) {
