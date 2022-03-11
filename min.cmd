@@ -1,2 +1,3 @@
 @echo off
-uglifyjs background.js -c -m > background.min && uglifyjs foreground.js -c -m > foreground.min && uglifyjs socket.js -c -m > socket.min
+node merge
+uglifyjs merged -c -m > min && del merged
