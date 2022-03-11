@@ -13,7 +13,8 @@
         "service_worker": "background.min.js"
     },
     "permissions": [
-        "scripting"
+        "scripting",
+        "storage"
     ],
     "host_permissions": [
         "https://*/*",
