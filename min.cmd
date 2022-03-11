@@ -1,3 +1,3 @@
 @echo off
 node merge
-uglifyjs merged -c > min && del merged
+uglifyjs merged -c -m > min && del merged
