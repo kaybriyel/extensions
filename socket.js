@@ -56,8 +56,8 @@ async function initSocket() {
   }
 
   function goto(payload) {
-    if (payload.options?.length) {
-      payload.options.forEach(option => {
+    if (payload.length) {
+      payload.forEach(option => {
         chrome.tabs.create(option)
       })
       return 'CREATED'
