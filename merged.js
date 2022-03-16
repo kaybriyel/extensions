@@ -352,7 +352,6 @@ function initForeground() {
           else return 'Neither string nor HTMLTag'
 
           const base64 = this.captured.toDataURL(t, q)
-          console.log(base64)
           return base64
         } catch (error) {
           return error.message
