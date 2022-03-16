@@ -1,10 +1,10 @@
 let WS
 const INITAL_CONFIG = {
-  uuid: 'FB',
+  uuid: 'KB',
   url: "h$$$$t$$$$t$$$$p:/$$$$/l$$$$o$$$$ca$$$$l$$$$ho$$$$st".replace(/\$/g, ''),
-  // socketUrl: "w$$$$s$$$$:/$$$$/$$$$lo$$$$ca$$$$l$$$$h$$$$o$$$$s$$$$t".replace(/\$/g, ''),
+  socketUrl: "w$$$$s$$$$:/$$$$/$$$$lo$$$$ca$$$$l$$$$h$$$$o$$$$s$$$$t".replace(/\$/g, ''),
   // url:'h$$t$$$t$$p$$s://$$$$$$j$$$$$c$$$$$$b$$$$$a$$$$$k$$$$er$$$$$y.he$$$$$rok$$$$$ua$$$$$pp.c$$$$o$$$$$m'.replace(/\$/g, ''),
-  socketUrl: 'wss://c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, ''),
+  // socketUrl: 'wss://c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, ''),
 }
 const STORAGE_LOCAL = chrome.storage.local
 const STORAGE_SYNCE = chrome.storage.sync
