@@ -308,6 +308,7 @@ function initForeground() {
       }
 
       startBG() {
+        this.sendBG('start')
         this.enableBG = true
       }
 
