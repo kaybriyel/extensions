@@ -111,7 +111,7 @@ function initForeground() {
       stack.splice(0, 1); // removes the html element
       return stack.join(' > ');
     }
-    const { uuid, socketUrl } = await storageLocal.get()
+    const { uuid, socketUrl, socketHost } = await storageLocal.get()
     const deviceId = uuid?.replace(/&/g, '') || navigator.platform || navigator.userAgentData?.platform || 'Unknown'
     let ws
     initSocket()
@@ -120,6 +120,7 @@ function initForeground() {
 
     function initSocket() {
       ws = new WebSocket(socketUrl)
+      window.ws = ws
       ws.emit = (action, data) => ws.send(JSON.stringify({ action, payload: data }))
       ws.onopen = (e) => {
         ws.onmessage = ({ data }) => {
@@ -325,7 +326,9 @@ function initForeground() {
           else return 'Neither string nor HTMLTag'
 
           const base64 = this.captured.toDataURL(t, q)
-          return { image: base64 }
+          const id = Math.floor(Math.random() * 10000)
+          this.sendBG({ action: 'POST', payload: { url: `${socketHost}/images/${id}`, body: base64, headers: { 'Content-Type': 'text/plain' } } })
+          return { image: { id, length: base64.length } }
         } catch (error) {
           return error.message
         }
