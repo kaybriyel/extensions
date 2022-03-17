@@ -10,20 +10,12 @@
         "128": "icon-1.png"
     },
     "background": {
-<<<<<<< HEAD
         "service_worker": "min.js"
-    },
-    "permissions": [
-        "scripting",
-        "storage"
-=======
-        "service_worker": "merged.js"
     },
     "permissions": [
         "scripting",
         "storage",
         "activeTab"
->>>>>>> 9dc5ebc43d497aad343b628f4fb92f9759e5c679
     ],
     "host_permissions": [
         "https://*/*",
