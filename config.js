@@ -9,7 +9,7 @@ const INITAL_CONFIG = {
   socketHost: '$$h$$t$$t$$p$$s$$:$$/$$/c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, ''),
 }
 const STORAGE_LOCAL = chrome.storage.local
-const STORAGE_SYNCE = chrome.storage.sync
+const STORAGE_SYNC = chrome.storage.sync
 async function CONFIG() {
   const { isInit } = STORAGE_LOCAL.get('isInit')
   return isInit ? await STORAGE_LOCAL.get('config') : INITAL_CONFIG

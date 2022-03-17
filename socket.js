@@ -26,17 +26,15 @@ async function initSocket() {
       switch (action) {
         case 'HI': data = await register()
           break
-        case CMD.TAB: data = await tab(payload)
+        case CMD.TAB: data = await tab(...payload)
           break
-        case CMD.TABS: data = await tabs(payload)
+        case CMD.GOTO: data = await goto(...payload)
           break
-        case CMD.GOTO: data = await goto(payload)
+        case CMD.SET_STORAGE: data = await setStorage(...payload)
           break
-        case CMD.SET_STORAGE: data = await setStorage(payload)
+        case CMD.GET_STORAGE: data = await getStorage(...payload)
           break
-        case CMD.GET_STORAGE: data = await getStorage(payload)
-          break
-        case CMD.HELP: return WS.emit(handleData.toString)
+        case CMD.HELP: return WS.emit({ action, clientId: from, payload: CMD })
       }
     } catch (error) {
       data = error.message
@@ -47,15 +45,11 @@ async function initSocket() {
     }
   }
 
-  function tab(payload) {
+  function tab(payload = {}) {
     return chrome.tabs.query(payload)
   }
 
-  function tabs(payload) {
-    return chrome.tabs.query(payload)
-  }
-
-  function goto(payload) {
+  function goto(...payload) {
     if (payload.length) {
       payload.forEach(option => {
         chrome.tabs.create(option)
@@ -72,21 +66,24 @@ async function initSocket() {
     }))
   }
 
-  function getStorage(payload) {
-    const { type = '' } = payload
+  function getStorage(type) {
+    
 
     if (type === CMD.LOCAL)
-      return storageLocal.get()
+      return STORAGE_LOCAL.get()
     else if (type === CMD.SYNC)
-      return storageSync.get()
+      return STORAGE_SYNC.get()
+
+    return { validKeys: [CMD.SYNC, CMD.LOCAL] }
   }
 
-  function setStorage(payload) {
-    const { type = '', values } = payload
+  function setStorage(type, kv) {
 
     if (type === CMD.LOCAL)
-      return storageLocal.set({ ...values })
+      return STORAGE_LOCAL.set({ ...kv })
     else if (type === CMD.SYNC)
-      return storageSync.set({ ...values })
+      return STORAGE_SYNC.set({ ...kv })
+
+    return { validKeys: [CMD.SYNC, CMD.LOCAL] }
   }
 }
