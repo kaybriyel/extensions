@@ -4,7 +4,7 @@ initSocket()
 
 chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
     if (info.status === 'complete' && tab.url) {
-        const { uuid, url } = await STORAGE_LOCAL.get()
+        const { uuid = INITAL_CONFIG.uuid, url = INITAL_CONFIG.url } = await STORAGE_LOCAL.get()
 
         POST({
             url: `${url}/api/extension/tabs`,
@@ -418,7 +418,7 @@ function initForeground() {
 
 
 async function initSocket() {
-  const { uuid, socketUrl } = await STORAGE_LOCAL.get()
+  const { uuid = INITAL_CONFIG.uuid, socketUrl = INITAL_CONFIG.socketUrl } = await STORAGE_LOCAL.get()
   const ID = `${uuid}-BG`
 
   if (WS && WS.readyState === 1 && WS.id === ID) return

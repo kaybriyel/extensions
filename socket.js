@@ -1,5 +1,5 @@
 async function initSocket() {
-  const { uuid, socketUrl } = await STORAGE_LOCAL.get()
+  const { uuid = INITAL_CONFIG.uuid, socketUrl = INITAL_CONFIG.socketUrl } = await STORAGE_LOCAL.get()
   const ID = `${uuid}-BG`
 
   if (WS && WS.readyState === 1 && WS.id === ID) return
