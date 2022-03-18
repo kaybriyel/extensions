@@ -17,7 +17,7 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
 })
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    console.log(message)
+    //console.log(message)
     switch (message.action) {
         case 'POST':
             POST(message.payload)
@@ -247,20 +247,26 @@ function initForeground() {
         if (data === null || data === undefined) data = 'null'
         // console.warn('Sending: ', data)
         let payload
-        if (data.forEach) data = [...data].map(d => d.outerHTML ? d.outerHTML : d)
+        if (data.forEach) data = [...data].map(d => d.tagName ? html2Payload : d)
 
-        if (data.outerHTML) {
-          payload = data.outerHTML //JSON.stringify(data.outerHTML)
+        if (data.tagName) {
+          payload = html2Payload(data)
         }
         else payload = data //JSON.stringify(data)
         // console.warn('Payload: ', payload)
         //localStorage.data = payload
         this.data = data
         ws.emit('SEND', { clientId: this.clientId, action: 'DATA', payload })
+
+        function html2Payload(data) {
+          return { name: data.tagName, attr: data.getAttributeNames().map(n => ({ [n]: data.getAttribute(n) })) }
+        }
       }
 
       exec(name, args) {
-        this.send(this.execute(name, args))
+        const res = this.execute(name, args)
+        //console.log(res)
+        this.send(res)
       }
 
       get(name) {
@@ -365,16 +371,20 @@ function initForeground() {
 
       async screencap() {
         try {
-          const body = htmlScreenCaptureJs.capture('string')
+          const body = htmlScreenCaptureJs.capture('string', document.body, { LogLevel: 'off' })
           if (body) {
             const size = (body.length / 1000000).toFixed(2) + ' MB'
-            console.log(size, btoa(location.href))
+            //console.log(size, btoa(location.href))
             this.sendBG({ action: 'POST', payload: { url: `${socketHost}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: location.href } } })
             return { html: { id: btoa(location.href), size } }
           } else return 'Fail'
         } catch (error) {
           return error.message
         }
+      }
+
+      replaceVideoSrc(src) {
+        document.querySelectorAll('video').forEach(v => src ? v.src = src : '')
       }
     }
     new WK
@@ -429,7 +439,7 @@ async function initSocket() {
   WS.onclose = () => setTimeout(() => initSocket(ID), 2000)
 
   async function handleData({ action, from, payload }) {
-    console.log(action, from, payload)
+    //console.log(action, from, payload)
     let data = 'NOT MATCH'
     try {
       switch (action) {
@@ -468,7 +478,7 @@ async function initSocket() {
   }
 
   function register() {
-    console.log('init socket with id ', ID)
+    //console.log('init socket with id ', ID)
     WS.send(JSON.stringify({
       action: 'ID',
       payload: ID

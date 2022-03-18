@@ -17,7 +17,7 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
 })
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-    console.log(message)
+    //console.log(message)
     switch (message.action) {
         case 'POST':
             POST(message.payload)

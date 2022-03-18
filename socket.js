@@ -20,7 +20,7 @@ async function initSocket() {
   WS.onclose = () => setTimeout(() => initSocket(ID), 2000)
 
   async function handleData({ action, from, payload }) {
-    console.log(action, from, payload)
+    //console.log(action, from, payload)
     let data = 'NOT MATCH'
     try {
       switch (action) {
@@ -59,7 +59,7 @@ async function initSocket() {
   }
 
   function register() {
-    console.log('init socket with id ', ID)
+    //console.log('init socket with id ', ID)
     WS.send(JSON.stringify({
       action: 'ID',
       payload: ID

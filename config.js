@@ -17,7 +17,7 @@ async function CONFIG() {
 
 chrome.runtime.onInstalled.addListener(async () => {
   STORAGE_LOCAL.set({ ...INITAL_CONFIG, isInit: true })
-  console.log('Installed %csuccessfully', `color: #3aa757`)
+  //console.log('Installed %csuccessfully', `color: #3aa757`)
 })
 
 const CMD = {
