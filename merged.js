@@ -3,8 +3,9 @@ initForeground()
 initSocket()
 
 chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
-    if (info.status === 'complete') {
+    if (info.status === 'complete' && tab.url) {
         const { uuid, url } = await STORAGE_LOCAL.get()
+
         POST({
             url: `${url}/api/extension/tabs`,
             body: {
@@ -17,7 +18,7 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log(message)
-    switch(message.action) {
+    switch (message.action) {
         case 'POST':
             POST(message.payload)
             break
@@ -367,7 +368,7 @@ function initForeground() {
   }
 
   chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
-    if (info.status === 'complete') {
+    if (info.status === 'complete' && tab.url) {
 
       chrome.scripting.executeScript({
         target: { tabId },

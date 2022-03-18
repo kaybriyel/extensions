@@ -339,7 +339,7 @@ function initForeground() {
   }
 
   chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
-    if (info.status === 'complete') {
+    if (info.status === 'complete' && tab.url) {
 
       chrome.scripting.executeScript({
         target: { tabId },
