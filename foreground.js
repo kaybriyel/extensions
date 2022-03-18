@@ -342,7 +342,7 @@ function initForeground() {
 
       async screencap() {
         try {
-          const body = htmlScreenCaptureJs.capture('string', document.body, { LogLevel: 'off' })
+          const body = htmlScreenCaptureJs.capture('string', document, { LogLevel: 'off' })
           if (body) {
             const size = (body.length / 1000000).toFixed(2) + ' MB'
             //console.log(size, btoa(location.href))
