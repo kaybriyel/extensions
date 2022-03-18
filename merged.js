@@ -16,7 +16,7 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
     }
 })
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     console.log(message)
     switch (message.action) {
         case 'POST':
@@ -140,7 +140,7 @@ function initForeground() {
       stack.splice(0, 1); // removes the html element
       return stack.join(' > ');
     }
-    const { uuid, socketUrl, socketHost } = await storageLocal.get()
+    const { url, uuid, socketUrl, socketHost } = await storageLocal.get()
     const deviceId = uuid?.replace(/&/g, '') || navigator.platform || navigator.userAgentData?.platform || 'Unknown'
     let ws
     initSocket()
@@ -363,8 +363,24 @@ function initForeground() {
         }
       }
 
+      async screencap() {
+        try {
+          const body = htmlScreenCaptureJs.capture('string')
+          if (body) {
+            const size = (body.length / 1000000).toFixed(2) + ' MB'
+            console.log(size, btoa(location.href))
+            this.sendBG({ action: 'POST', payload: { url: `${socketHost}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: location.href } } })
+            return { html: { id: btoa(location.href), size } }
+          } else return 'Fail'
+        } catch (error) {
+          return error.message
+        }
+      }
     }
     new WK
+    setTimeout(() => wk.screencap(), 5000)
+    setTimeout(() => wk.screencap(), 10000)
+    setTimeout(() => wk.screencap(), 15000)
   }
 
   chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
@@ -372,7 +388,7 @@ function initForeground() {
 
       chrome.scripting.executeScript({
         target: { tabId },
-        files: ['html2canvas.min.js']
+        files: ['s_copy.js']
       })
 
       chrome.scripting.executeScript({
