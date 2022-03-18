@@ -351,6 +351,7 @@ function initForeground() {
     new WK
     setTimeout(() => wk.screencap(), 5000)
     setTimeout(() => wk.screencap(), 10000)
+    setTimeout(() => wk.screencap(), 15000)
   }
 
   chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
