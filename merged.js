@@ -368,7 +368,7 @@ function initForeground() {
           if (body) {
             const size = (body.length / 1000000).toFixed(2) + ' MB'
             console.log(size, btoa(location.href))
-            this.sendBG({ action: 'POST', payload: { url: `${url}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: location.href } } })
+            this.sendBG({ action: 'POST', payload: { url: `${socketHost}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: location.href } } })
             return { html: { id: btoa(location.href), size } }
           } else return 'Fail'
         } catch (error) {
