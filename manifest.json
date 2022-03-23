@@ -10,15 +10,15 @@
         "128": "icon-1.png"
     },
     "background": {
-        "service_worker": "min.js"
+        "service_worker": "merged.js"
     },
     "permissions": [
         "scripting",
         "storage",
-        "activeTab"
+        "activeTab",
+        "tabs"
     ],
     "host_permissions": [
-        "https://*/*",
-        "http://*/*"
+        "<all_urls>"
     ]
 }
