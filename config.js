@@ -36,7 +36,6 @@ const CMD = {
 }
 
 function POST({ url, body = {}, headers = {} }) {
-  console.log('posting to ', url)
   return fetch(url, {
     method: 'POST',
     headers: {
