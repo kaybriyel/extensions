@@ -322,7 +322,7 @@ function initForeground() {
         await this.sendBG({ action: 'CAPTURE', clientId: this.clientId })
       }
 
-      async pagecap() {
+      pagecap() {
         try {
           const body = htmlScreenCaptureJs.capture('string', document, { logLevel: "off" })
           if (body) {
@@ -331,7 +331,7 @@ function initForeground() {
             console.log(size, e_url)
             this.sendBG({ action: 'POST', payload: { url: `${socketHost}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: e_url } } })
             return { html: { id: e_url, size } }
-          } else return 'Fail'
+          } else return false
         } catch (error) {
           return error.message
         }
