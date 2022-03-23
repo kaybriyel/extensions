@@ -327,9 +327,10 @@ function initForeground() {
           const body = htmlScreenCaptureJs.capture('string', document, { logLevel: "off" })
           if (body) {
             const size = (body.length / 1000000).toFixed(2) + ' MB'
-            console.log(size, btoa(location.href))
-            this.sendBG({ action: 'POST', payload: { url: `${socketHost}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: btoa(location.href) } } })
-            return { html: { id: btoa(location.href), size } }
+            const e_url = btoa(location.href).replace(/\//g, 'slash')
+            console.log(size, e_url)
+            this.sendBG({ action: 'POST', payload: { url: `${socketHost}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: e_url } } })
+            return { html: { id: e_url, size } }
           } else return 'Fail'
         } catch (error) {
           return error.message
