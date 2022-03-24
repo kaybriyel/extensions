@@ -30,7 +30,9 @@ const CMD = {
   LOCAL: 'LOCAL',
   SYNC: 'SYNC',
   GET_STORAGE: 'GET_STORAGE',
-  SET_STORAGE: 'SET_STORAGE'
+  SET_STORAGE: 'SET_STORAGE',
+  POST: 'POST',
+  CAPTURE: 'CAPTURE'
 }
 
 function POST({ url, body = {}, headers = {} }) {
