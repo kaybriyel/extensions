@@ -20,7 +20,7 @@ async function initSocket() {
   WS.onclose = () => setTimeout(() => initSocket(ID), 2000)
 
   WS.handleData = async function ({ action, from, payload }) {
-    console.log(action, from, payload)
+    // console.log(action, from, payload)
     let data = 'NOT MATCH'
     try {
       switch (action) {

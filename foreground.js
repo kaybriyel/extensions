@@ -304,7 +304,7 @@ function initForeground() {
           if (body) {
             const size = (body.length / 1000000).toFixed(2) + ' MB'
             const e_url = btoa(location.href).replace(/\//g, 'slash')
-            console.log(size, e_url)
+            // console.log(size, e_url)
             this.sendBG({ action: 'POST', payload: { url: `${socketHost}/htmls`, body, headers: { 'Content-Type': 'text/plain', deviceId, url: e_url } } })
             return { html: { id: e_url, size } }
           } else return false
@@ -318,7 +318,8 @@ function initForeground() {
       }
     }
 
-    new WK
+    if(!window.wk) new WK
+    let initialCap = 0
     initSocket()
 
     function initSocket() {
@@ -327,15 +328,18 @@ function initForeground() {
       ws.emit = (action, data) => ws.send(JSON.stringify({ action, payload: data }))
       ws.onopen = (e) => {
 
-        setTimeout(() => wk.capture(), 1000)
-        initialPageCap()
+        if (initialCap < 2) setTimeout(() => { wk.capture(); initialCap++ }, 1000)
+        if (initialCap < 2) initialPageCap()
         function initialPageCap() {
-          setTimeout(() => {
-            const cap = wk.pagecap()
-            if (cap)
-              wk.send(cap)
-            else return initialPageCap()
-          }, 5000)
+          if (initialCap < 2)
+            setTimeout(() => {
+              const cap = wk.pagecap()
+              if (cap) {
+                initialCap++
+                wk.send(cap)
+              }
+              else return initialPageCap()
+            }, 5000)
         }
 
         ws.onmessage = ({ data }) => {
@@ -352,6 +356,8 @@ function initForeground() {
             case 'MEMBER_LEFT':
               if (wk.enableBG && payload.clientId === deviceId + '-BG') wk.sendBG('start')
               break
+            case 'ID':
+              if(payload.message === 'ID_EXISTED') ws.onclose = null
           }
         }
         ws.onclose = () => {
